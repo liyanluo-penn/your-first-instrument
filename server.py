@@ -31,10 +31,55 @@ def seconds_since(iso_timestamp: str) -> str:
     return f"{delta.total_seconds():.0f} seconds ({delta})"
 
 @mcp.tool()
-def my_tool() -> str:
-    """YOURS. Rename it, give it a real purpose, make the model reach
-    something it couldn't before. (Track ideas: docs/TRACKS.md)"""
-    return "Not built yet — that's the point. Edit server.py."
+def deadline_countdown(deadline: str) -> dict[str, str | int]:
+    """Calculate time remaining until an assignment deadline, or time overdue.
+
+    Supply an ISO 8601 date and time with an explicit UTC offset, such as
+    '2026-09-25T23:59:00-04:00', or a UTC timestamp ending in Z. Ask the user
+    for any missing deadline details instead of assuming a date or timezone.
+    Duration fields are absolute whole days/hours/minutes/seconds; status
+    distinguishes upcoming, due_now, and overdue. This reads the real clock.
+    """
+    timestamp = deadline.strip()
+    if timestamp.endswith("Z"):
+        timestamp = timestamp[:-1] + "+00:00"
+    try:
+        due = datetime.fromisoformat(timestamp)
+    except ValueError:
+        raise ValueError(
+            "Invalid deadline. Use an ISO 8601 date and time with a UTC offset, "
+            "for example 2026-09-25T23:59:00-04:00."
+        ) from None
+    if due.utcoffset() is None:
+        raise ValueError(
+            "Deadline must include a date, time, and timezone: use Z for UTC "
+            "or an explicit offset such as -04:00."
+        )
+
+    now = datetime.now(timezone.utc)
+    due_utc = due.astimezone(timezone.utc)
+    status = "upcoming" if due_utc > now else "overdue" if due_utc < now else "due_now"
+    distance = abs(due_utc - now)
+    hours, remainder = divmod(distance.seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    duration = f"{distance.days} days, {hours} hours, {minutes} minutes, {seconds} seconds"
+    if distance.days == 0 and distance.seconds == 0 and distance.microseconds:
+        duration = "less than 1 second"
+    if status == "due_now":
+        message = "The deadline is now."
+    else:
+        label = "Time remaining" if status == "upcoming" else "Overdue by"
+        message = f"{label}: {duration}."
+    return {
+        "deadline": due.isoformat(),
+        "checked_at": now.isoformat(),
+        "status": status,
+        "days": distance.days,
+        "hours": hours,
+        "minutes": minutes,
+        "seconds": seconds,
+        "message": message,
+    }
 
 if __name__ == "__main__":
     mcp.run(transport="streamable-http")

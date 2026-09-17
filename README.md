@@ -12,8 +12,8 @@ model cannot.
 
 ## What's in the rig
 
-- `server.py` — a small, working MCP server (a sense of time, ~40 lines).
-  Two tools work; the third is a stub with your name on it.
+- `server.py` — an MCP server with `current_time`, `seconds_since`, and
+  `deadline_countdown` tools.
 - `docs/adr/` — **the choices live here, not in the code.** Every decision
   this repo made for you is written down with its reasons, so you inherit
   understanding, not just files. Disagree with one? Write the next ADR.
@@ -21,6 +21,28 @@ model cannot.
 - `.vscode/` — the environment configures itself (extensions, project color).
 - `render.yaml` — one-click deploy to Render's free tier, so your instrument
   gets a URL anyone's Claude can connect to.
+
+## My tool: assignment deadline countdown
+
+`deadline_countdown(deadline)` helps plan assignments using the actual current
+time. It reports how many days, hours, minutes, and seconds remain, or how long
+the deadline has been overdue. It replaces the template's `my_tool` placeholder.
+
+Pass an ISO 8601 date and time with an explicit offset, for example
+`2026-09-25T23:59:00-04:00`. UTC timestamps ending in `Z` also work. Missing
+timezones and invalid dates return a clear error instead of guessing. The tool
+returns the checked time and deadline so its calculation can be verified.
+
+Try asking Claude:
+
+> My assignment is due on September 25, 2026 at 23:59, UTC-04:00. Call
+> `deadline_countdown` and tell me exactly how much time remains.
+
+Test it with future, past, and invalid deadlines. Run the automated checks with:
+
+```bash
+uv run python -m unittest discover -s tests -v
+```
 
 ## What you might need to install (once per machine)
 
