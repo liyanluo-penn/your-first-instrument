@@ -1,3 +1,9 @@
 .venv/
+.venv-win/
+.env
+.env.*
+!.env.example
+.pytest_cache/
+*.egg-info/
 __pycache__/
 *.py[cod]

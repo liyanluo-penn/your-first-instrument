@@ -7,7 +7,11 @@ instrument you can imagine. See docs/adr/ for every choice made here.
 """
 import os
 from datetime import datetime, timezone
-from mcp.server.fastmcp import FastMCP
+from mcp.server.fastmcp import Context, FastMCP
+from starlette.responses import JSONResponse
+
+import deadline_store
+from identity import current_identity
 
 mcp = FastMCP(
     "your-first-instrument",
@@ -80,6 +84,70 @@ def deadline_countdown(deadline: str) -> dict[str, str | int]:
         "seconds": seconds,
         "message": message,
     }
+
+@mcp.tool()
+def user_status(ctx: Context) -> dict:
+    """Check identity before saving: guests share public demo deadlines; signed-in users have private lists."""
+    user_id, email = current_identity(ctx)
+    if user_id is None:
+        return {"mode": "guest", "message": "Shared guest deadlines are visible to every guest. Sign in for a private list."}
+    return {"mode": "user", "email": email, "message": "Signed in. Saved deadlines belong to your account."}
+
+
+@mcp.tool()
+def save_deadline(title: str, deadline: str, ctx: Context) -> dict:
+    """Save an assignment and its timezone-aware deadline across conversations.
+
+    Guests share a PUBLIC demo list. Check user_status and tell the user which
+    mode they are in before saving personal information. Ask for any missing
+    date, time or timezone. Signed-in callers get their own private list.
+    """
+    user_id, _ = current_identity(ctx)
+    title = title.strip()
+    if not title or len(title) > 200:
+        raise ValueError("Title must contain 1 to 200 characters.")
+    countdown = deadline_countdown(deadline)
+    due_at = datetime.fromisoformat(str(countdown["deadline"]))
+    deadline_id = deadline_store.save(user_id, title, due_at)
+    return {"id": deadline_id, "title": title, "shelf": "private" if user_id else "shared guest",
+            **countdown}
+
+
+@mcp.tool()
+def list_deadlines(ctx: Context, include_completed: bool = False) -> dict:
+    """List YOUR saved assignments, earliest first, with fresh countdowns.
+
+    Guests see the shared demo list. Completed assignments are hidden unless
+    include_completed is true. Uses the real clock on every call.
+    """
+    user_id, _ = current_identity(ctx)
+    rows = deadline_store.list_for(user_id, include_completed)
+    return {"shelf": "private" if user_id else "shared guest", "deadlines": [
+        {"id": str(did), "title": title, "completed": completed,
+         **deadline_countdown(due_at.isoformat())}
+        for did, title, due_at, completed in rows
+    ]}
+
+
+@mcp.tool()
+def complete_deadline(deadline_id: str, ctx: Context) -> dict:
+    """Mark an assignment on YOUR list complete without deleting its history.
+
+    Use an id from list_deadlines. Other users' deadlines cannot be changed.
+    """
+    user_id, _ = current_identity(ctx)
+    if not deadline_store.complete(user_id, deadline_id):
+        return {"completed": False, "message": "No deadline with that id exists on your list."}
+    return {"completed": True, "id": deadline_id}
+
+
+@mcp.custom_route("/health", methods=["GET"])
+async def health(request):
+    return JSONResponse({"status": "ok", "service": "your-first-instrument"})
+
+
+from auth import register_oauth_routes
+register_oauth_routes(mcp)
 
 if __name__ == "__main__":
     mcp.run(transport="streamable-http")

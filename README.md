@@ -24,6 +24,31 @@ model cannot.
 
 ## My tool: assignment deadline countdown
 
+### Session 7: persistent deadlines with private accounts
+
+The project now combines the real clock with a database and sign-in. Claude can
+save assignments, retrieve them in a later conversation, and mark them complete.
+Guests share a labeled demonstration list; signed-in users see only their own
+deadlines. Invalid credentials produce an error instead of saving as guest.
+
+| Tool | Purpose |
+|---|---|
+| `user_status` | Check whether this call is guest or signed in. |
+| `save_deadline(title, deadline)` | Save an assignment with an explicit date, time and UTC offset. |
+| `list_deadlines(include_completed=False)` | List this caller's assignments with fresh countdowns. |
+| `complete_deadline(deadline_id)` | Mark one of this caller's assignments complete; preserve history. |
+| `deadline_countdown(deadline)` | Calculate a countdown without storing anything. |
+
+Start with [Session 7 setup](docs/SESSION-7-SETUP.md), then use the
+[show-and-tell script](docs/SHOW-AND-TELL.md). The reasons for the design are in
+[ADR-0005](docs/adr/0005-private-persistent-deadlines.md).
+
+The original clock-only setup below remains useful for learning. To run the
+database and login features locally, copy `.env.example` to `.env`, fill in the
+Neon values, and run `uv run --env-file .env server.py`. Secrets stay out of git.
+
+### Original countdown behavior
+
 `deadline_countdown(deadline)` helps plan assignments using the actual current
 time. It reports how many days, hours, minutes, and seconds remain, or how long
 the deadline has been overdue. It replaces the template's `my_tool` placeholder.
