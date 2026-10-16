@@ -1,3 +1,8 @@
 your-first-instrument — Copyright 2026 Jérémie Lumbroso
 Created for CIS 7000: Computationally Assisted Metacognition (Penn, Fall 2026).
 Lineage: the Passage of Time MCP (time.system3.tools) — keep this notice in derivatives.
+
+Neon identity and OAuth integration adapted from jlumbroso/your-protected-notes,
+Copyright 2026 Jérémie Lumbroso, used under MIT (see LICENSE-auth.txt).
+Deadline persistence, ownership tests and OAuth request-binding fixes added
+for Liyan Luo's Session 7 course project with Codex assistance, 2026-10-15.
