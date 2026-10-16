@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "assignment-deadlines": {
+      "type": "http",
+      "url": "https://your-first-instrument-a84r.onrender.com/mcp"
+    },
+    "protected-notes": {
+      "type": "http",
+      "url": "https://your-protected-notes-0voz.onrender.com/mcp"
+    }
+  }
+}

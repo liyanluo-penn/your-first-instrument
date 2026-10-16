@@ -25,4 +25,9 @@ Use invented demonstration assignments, not personal information in guest mode. 
 - **Why require a timezone?** “Friday at midnight” is ambiguous; an explicit offset makes the countdown verifiable.
 - **What did I adapt?** The course's clock starter and protected-notes authentication pattern, with Codex assistance. The added deadline storage, ownership checks, tests, and design decisions are in this repository.
 
-Only describe live deployment and sign-in as completed after actually running those checks. Use the test output to describe automated checks separately.
+Deployment and a real sign-in were verified on 2026-10-15. Live checks covered
+private reads and writes in new MCP sessions, guest isolation, completion
+ownership, invalid-token rejection, and session refresh. The local suite passed
+20 tests, including two different signed-in identities. See the
+[Chinese assignment guide](SESSION-7-RESULTS.md) for the deployed links and the
+remaining first-use login steps inside Claude.

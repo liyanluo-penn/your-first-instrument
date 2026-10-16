@@ -7,6 +7,26 @@ The assignment has two repositories:
 
 The protected-notes repository was created using GitHub's template mechanism, not as a fork. The countdown project adds the same ownership idea to saved assignments.
 
+## This deployment (2026-10-15)
+
+| Connector | Deployed MCP endpoint |
+|---|---|
+| `assignment-deadlines` | `https://your-first-instrument-a84r.onrender.com/mcp` |
+| `protected-notes` | `https://your-protected-notes-0voz.onrender.com/mcp` |
+
+Both services run on Render's free plan and use the existing `my-memory` Neon
+project with Managed Better Auth. The countdown code is merged into `main`.
+The project `.mcp.json` contains both endpoints. They are also installed in the
+local Claude Code configuration for this project; `claude mcp list` reports
+both as Connected. This confirms MCP connectivity, not a Claude account login.
+
+Completed checks: 20 automated tests; live guest writes and reads in a new MCP
+session; completion and history; invalid-token rejection; a real user-completed
+Neon Auth login; private writes and reads in both services; exclusion from guest
+lists; guest rejection when completing a private deadline; session refresh.
+Only verification-created rows were removed after the live checks. Two distinct
+signed-in users were tested locally with signed JWTs, not with two live accounts.
+
 ## Neon
 
 Reuse the earlier memory project's Neon project if available. Enable Managed Better Auth and copy its base URL from Auth → Configuration. Copy the Postgres connection URL from Connect. The new `assignment_deadlines` table is created automatically on first use, alongside any existing course tables.
@@ -42,6 +62,13 @@ claude mcp add --transport http --scope project assignment-deadlines https://YOU
 ```
 
 Use `/mcp` in Claude Code to authenticate. Project configuration can store the server URL; do not place access tokens in a committed `.mcp.json`.
+
+On this computer, open this project in Claude Code and complete Claude's own
+login if prompted. Use `/mcp` to sign into each course connector using the
+assignment account you created. The one-time verification login did not store
+its tokens in Claude. Always call `user_status` and confirm `user` before saving
+private information. No Claude account password or assignment password belongs
+in a chat message or repository file.
 
 ## Verification
 

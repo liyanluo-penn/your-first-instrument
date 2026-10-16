@@ -26,6 +26,11 @@ model cannot.
 
 ### Session 7: persistent deadlines with private accounts
 
+**Deployed:** `https://your-first-instrument-a84r.onrender.com/mcp`.
+Both course connectors are configured in [`.mcp.json`](.mcp.json).
+Start with the [Chinese assignment guide](docs/SESSION-7-RESULTS.md) for the
+finished work, verified behavior, and a short classroom demonstration.
+
 The project now combines the real clock with a database and sign-in. Claude can
 save assignments, retrieve them in a later conversation, and mark them complete.
 Guests share a labeled demonstration list; signed-in users see only their own
